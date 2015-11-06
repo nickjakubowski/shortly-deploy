@@ -1,25 +1,17 @@
-var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/27017');
-
-var db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function (callback) {
-  console.log('Connection made!');
-});
+var mongoose = require('../config')
+var bcrypt = require('bcrypt-nodejs');
 
 var userSchema = mongoose.Schema({
   username: String,
-  password: String,
-  links: [{
-     timeStamp: Date,
-     base_url: String,
-     title: String,
-     code: String,
-     visits: Number 
-  }]
-  
+  password: String
 })
 
 var User = mongoose.model('User', userSchema);
+
+User.prototype.comparePassword = function(attemptedPassword, callback) {
+  bcrypt.compare(attemptedPassword, this.password, function(err, isMatch) {
+    callback(isMatch);
+  });
+};
 
 module.exports = User;
